@@ -1,0 +1,28 @@
+[
+    {
+        "caption": "Repository: Edit .git/config",
+        "command": "git_open_file",
+        "args": {
+            "name": ".git/config",
+            "syntax": "Git Config.sublime-syntax"
+        }
+    },
+    {
+        "caption": "Repository: Edit .git/info/exclude",
+        "command": "git_open_file",
+        "args": {
+            "name": ".git/info/exclude",
+            "syntax": "Git Ignore.sublime-syntax"
+        }
+    },
+    {
+        "caption": "Repository: Edit .gitignore",
+        "command": "git_open_file",
+        "args": {"name": ".gitignore"}
+    },
+    {
+        "caption": "Repository: Edit .gitattributes",
+        "command": "git_open_file",
+        "args": {"name": ".gitignore"}
+    }
+]

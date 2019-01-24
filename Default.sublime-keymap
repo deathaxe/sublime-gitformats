@@ -1,0 +1,51 @@
+[
+    {
+        "keys": ["d"], "command": "git_rebase_operation", "args": { "cmd": "drop" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+    {
+        "keys": ["e"], "command": "git_rebase_operation", "args": { "cmd": "edit" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+    {
+        "keys": ["f"], "command": "git_rebase_operation", "args": { "cmd": "fixup" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+    {
+        "keys": ["p"], "command": "git_rebase_operation", "args": { "cmd": "pick" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+    {
+        "keys": ["r"], "command": "git_rebase_operation", "args": { "cmd": "reword" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+    {
+        "keys": ["s"], "command": "git_rebase_operation", "args": { "cmd": "squash" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+    {
+        "keys": ["x"], "command": "git_rebase_operation", "args": { "cmd": "exec" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+]
