@@ -23,6 +23,6 @@
     {
         "caption": "Repository: Edit .gitattributes",
         "command": "git_open_file",
-        "args": {"name": ".gitignore"}
+        "args": {"name": ".gitattributes"}
     }
 ]
