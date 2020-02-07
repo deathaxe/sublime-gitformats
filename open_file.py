@@ -4,9 +4,17 @@ import sublime
 import sublime_plugin
 
 try:
+    import sys
+
+    if sys.version >= "3.8":
+        # python 3.8 doesn't need the realpath patch
+        raise AssertionError()
+
+    if sys.getwindowsversion().major < 6:
+        # Windows NT/2000/XP don't support the realpath patch
+        raise AssertionError()
+
     from nt import _getfinalpathname
-    from sys import getwindowsversion
-    assert getwindowsversion().major >= 6
 
     def realpath(path):
         """Resolve symlinks and return real path to file.
