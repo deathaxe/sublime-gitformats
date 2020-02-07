@@ -41,7 +41,7 @@ try:
         try:
             if path:
                 real_path = _getfinalpathname(path)
-                if real_path[5] == ':':
+                if real_path[5] == ":":
                     # Remove \\?\ from beginning of resolved path
                     return real_path[4:]
                 return os.path.abspath(path)
@@ -49,7 +49,9 @@ try:
             pass
         return path
 
+
 except (AttributeError, ImportError, AssertionError):
+
     def realpath(path):
         """Resolve symlinks and return real path to file.
 
@@ -60,6 +62,21 @@ except (AttributeError, ImportError, AssertionError):
             string: The resolved absolute path.
         """
         return os.path.realpath(path) if path else None
+
+
+def git_path(path):
+    return os.path.join(path, ".git")
+
+
+def parse_gitfile(gitfile):
+    try:
+        with open(gitfile) as file:
+            text = file.read()
+            if text.startswith("gitdir: "):
+                return realpath(text[len("gitdir: ") :].strip())
+    except OSError:
+        pass
+    return None
 
 
 def is_work_tree(path):
@@ -73,10 +90,10 @@ def is_work_tree(path):
     Returns:
         bool: True if path contains a '.git'
     """
-    return path and os.path.exists(os.path.join(path, '.git'))
+    return path and os.path.exists(git_path(path))
 
 
-def split_work_tree(file_path):
+def rev_parse_toplevel(file_path):
     """Split the 'file_path' into working tree and relative path.
 
     The file_path is converted to a absolute real path and split into
@@ -96,28 +113,60 @@ def split_work_tree(file_path):
     if file_path:
         path, name = os.path.split(realpath(file_path))
         # files within '.git' path are not part of a work tree
-        while path and name and name != '.git':
+        while path and name:
             if is_work_tree(path):
-                return (path, os.path.relpath(
-                    file_path, path).replace('\\', '/'))
+                return path
             path, name = os.path.split(path)
-    return (None, None)
+    return None
+
+
+def rev_parse_gitdir(file_path):
+    path = rev_parse_toplevel(file_path)
+    if path:
+        gitdir = git_path(path)
+        path = parse_gitfile(gitdir) or gitdir
+    return path
+
+
+def rev_parse_commondir(file_path):
+    path = rev_parse_gitdir(file_path)
+    if path:
+        worktree = rev_parse_toplevel(path)
+        if worktree:
+            path = git_path(worktree)
+    return path
+
+
+def init_variables(file_path):
+    worktree = rev_parse_toplevel(file_path)
+    if not worktree:
+        return None
+
+    gitdir = git_path(worktree)
+    gitfile_content = parse_gitfile(gitdir)
+    if gitfile_content:
+        gitdir = gitfile_content
+        super_worktree = rev_parse_toplevel(gitdir)
+        commondir = git_path(super_worktree)
+    else:
+        super_worktree = worktree
+        commondir = gitdir
+
+    return {
+        "GIT_COMMON_DIR": commondir,
+        "GIT_DIR": gitdir,
+        "GIT_SUPER_WORK_TREE": super_worktree,
+        "GIT_WORK_TREE": worktree,
+    }
 
 
 class GitOpenFileCommand(sublime_plugin.TextCommand):
-
-    def __init__(self, id):
-        sublime_plugin.TextCommand.__init__(self, id)
-        self.repo = None
-
     def is_enabled(self):
-        self.repo, _ = split_work_tree(self.view.file_name())
-        return self.repo is not None
+        return rev_parse_toplevel(self.view.file_name()) is not None
 
     def run(self, edit, name, syntax=None):
-        view = self.view.window().open_file(
-            os.path.join(self.repo, name),
-            sublime.TRANSIENT
-        )
+        variables = init_variables(self.view.file_name())
+        file_path = sublime.expand_variables(name, variables)
+        view = self.view.window().open_file(file_path)
         if syntax:
             view.assign_syntax(syntax)

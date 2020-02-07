@@ -1,28 +1,68 @@
 [
     {
-        "caption": "Repository: Edit .git/config",
+        "caption": "Repository: Edit config",
         "command": "git_open_file",
         "args": {
-            "name": ".git/config",
+            "name": "$GIT_COMMON_DIR/config",
             "syntax": "Git Config.sublime-syntax"
         }
     },
     {
-        "caption": "Repository: Edit .git/info/exclude",
+        "caption": "Repository: Edit exclude",
         "command": "git_open_file",
         "args": {
-            "name": ".git/info/exclude",
+            "name": "$GIT_COMMON_DIR/info/exclude",
             "syntax": "Git Ignore.sublime-syntax"
         }
     },
     {
-        "caption": "Repository: Edit .gitignore",
+        "caption": "Repository: Edit sparse-checkout",
         "command": "git_open_file",
-        "args": {"name": ".gitignore"}
+        "args": {
+            "name": "$GIT_COMMON_DIR/info/sparse-checkout",
+            "syntax": "Git Ignore.sublime-syntax"
+        }
+    },
+
+    {
+        "caption": "Worktree: Edit config",
+        "command": "git_open_file",
+        "args": {
+            "name": "$GIT_DIR/config",
+            "syntax": "Git Config.sublime-syntax"
+        }
     },
     {
-        "caption": "Repository: Edit .gitattributes",
+        "caption": "Worktree: Edit exclude",
         "command": "git_open_file",
-        "args": {"name": ".gitattributes"}
+        "args": {
+            "name": "$GIT_DIR/info/exclude",
+            "syntax": "Git Ignore.sublime-syntax"
+        }
+    },
+    {
+        "caption": "Worktree: Edit sparse-checkout",
+        "command": "git_open_file",
+        "args": {
+            "name": "$GIT_DIR/info/sparse-checkout",
+            "syntax": "Git Ignore.sublime-syntax"
+        }
+    },
+
+    {
+        "caption": "Worktree: Edit .gitattributes",
+        "command": "git_open_file",
+        "args": {"name": "$GIT_WORK_TREE/.gitattributes"}
+    },
+    {
+        "caption": "Worktree: Edit .gitignore",
+        "command": "git_open_file",
+        "args": {"name": "$GIT_WORK_TREE/.gitignore"}
+    },
+    {
+        "caption": "Worktree: Edit .gitmodules",
+        "command": "git_open_file",
+        "args": {"name": "$GIT_WORK_TREE/.gitmodules"}
     }
+
 ]
