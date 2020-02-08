@@ -1,7 +1,10 @@
 import os
 
-import sublime
 import sublime_plugin
+
+__all__ = ["GitOpenFileCommand"]
+
+GIT_SEP = os.sep + ".git" + os.sep
 
 try:
     import sys
@@ -76,7 +79,7 @@ def parse_gitfile(gitfile):
                 return realpath(text[len("gitdir: ") :].strip())
     except OSError:
         pass
-    return None
+    return gitfile
 
 
 def is_work_tree(path):
@@ -93,26 +96,87 @@ def is_work_tree(path):
     return path and os.path.exists(git_path(path))
 
 
-def rev_parse_toplevel(file_path):
-    """Split the 'file_path' into working tree and relative path.
+def rev_parse_commondir(file_path):
+    """Return the .git directory of the file's worktree's super repository.
 
-    The file_path is converted to a absolute real path and split into
-    the working tree part and relative path part.
+    This is a local alternative to calling the git command:
 
-    Note:
-        This is a local alternative to calling the git command:
-
-            git rev-parse --show-toplevel
+        git rev-parse --git-common-dir
 
     Arguments:
-        file_path (string): Absolute path to a file.
+        file_path (string): a absolute or relative file path
 
     Returns:
-        A tuple of two the elements (working tree, file path).
+        string: The .git directory of the file_path's worktree's super repository or
+        None: if the file is not located in a repository.
+    """
+    path = rev_parse_gitdir(file_path)
+    if path and not path.endswith(".git"):
+        start = path.find(GIT_SEP)
+        if start > -1:
+            return path[: start + len(GIT_SEP) - 1]
+    return path
+
+
+def rev_parse_gitdir(file_path):
+    """Return the .git directory of the file's worktree.
+
+    This is a local alternative to calling the git command:
+
+        git rev-parse --absolute-git-dir
+
+    Arguments:
+        file_path (string): a absolute or relative file path
+
+    Returns:
+        string: The .git directory of the file_path's worktree or
+        None: if the file is not located in a repository.
+    """
+    path = rev_parse_worktree(file_path)
+    if path:
+        return parse_gitfile(git_path(path))
+    return path
+
+
+def rev_parse_super_worktree(file_path):
+    """Return the root directory of the file's worktree's super repository.
+
+    This is a local alternative to calling the git command:
+
+        git rev-parse --show-superproject-working-tree
+
+    Arguments:
+        file_path (string): a absolute or relative file path
+
+    Returns:
+        string: The root directory of the file_path's worktree's super repository or
+        None: if the file is not located in a repository.
+    """
+    path = rev_parse_gitdir(file_path)
+    if path:
+        if path.endswith(".git"):
+            return os.path.split(path)[0]
+        else:
+            return path.split(GIT_SEP)[0]
+    return path
+
+
+def rev_parse_worktree(file_path):
+    """Return the toplevel directory of the file's worktree.
+
+    This is a local alternative to calling the git command:
+
+        git rev-parse --show-toplevel
+
+    Arguments:
+        file_path (string): a absolute or relative file path
+
+    Returns:
+        string: The worktree root directory or
+        None: if the file is not located in a repository.
     """
     if file_path:
         path, name = os.path.split(realpath(file_path))
-        # files within '.git' path are not part of a work tree
         while path and name:
             if is_work_tree(path):
                 return path
@@ -120,53 +184,27 @@ def rev_parse_toplevel(file_path):
     return None
 
 
-def rev_parse_gitdir(file_path):
-    path = rev_parse_toplevel(file_path)
-    if path:
-        gitdir = git_path(path)
-        path = parse_gitfile(gitdir) or gitdir
-    return path
+class GitOpenFileCommand(sublime_plugin.TextCommand):
 
-
-def rev_parse_commondir(file_path):
-    path = rev_parse_gitdir(file_path)
-    if path:
-        worktree = rev_parse_toplevel(path)
-        if worktree:
-            path = git_path(worktree)
-    return path
-
-
-def init_variables(file_path):
-    worktree = rev_parse_toplevel(file_path)
-    if not worktree:
-        return None
-
-    gitdir = git_path(worktree)
-    gitfile_content = parse_gitfile(gitdir)
-    if gitfile_content:
-        gitdir = gitfile_content
-        super_worktree = rev_parse_toplevel(gitdir)
-        commondir = git_path(super_worktree)
-    else:
-        super_worktree = worktree
-        commondir = gitdir
-
-    return {
-        "GIT_COMMON_DIR": commondir,
-        "GIT_DIR": gitdir,
-        "GIT_SUPER_WORK_TREE": super_worktree,
-        "GIT_WORK_TREE": worktree,
+    variables = {
+        "$GIT_COMMON_DIR": rev_parse_commondir,
+        "$GIT_DIR": rev_parse_gitdir,
+        "$GIT_SUPER_WORK_TREE": rev_parse_super_worktree,
+        "$GIT_WORK_TREE": rev_parse_worktree,
     }
 
-
-class GitOpenFileCommand(sublime_plugin.TextCommand):
     def is_enabled(self):
-        return rev_parse_toplevel(self.view.file_name()) is not None
+        return rev_parse_worktree(self.view.file_name()) is not None
 
     def run(self, edit, name, syntax=None):
-        variables = init_variables(self.view.file_name())
-        file_path = sublime.expand_variables(name, variables)
+        file_path = name
+        for var, expander in self.variables.items():
+            if var in file_path:
+                abspath = expander(self.view.file_name())
+                if abspath:
+                    file_path = file_path.replace(var, abspath)
+                break
+
         view = self.view.window().open_file(file_path)
         if syntax:
             view.assign_syntax(syntax)

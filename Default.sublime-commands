@@ -1,5 +1,19 @@
 [
     {
+        "caption": "User: Edit .gitconfig",
+        "command": "git_open_file",
+        "args": {
+            "name": "~/.gitconfig",
+            "syntax": "Git Config.sublime-syntax"
+        }
+    },
+    {
+        "caption": "User: Edit .gitignore",
+        "command": "git_open_file",
+        "args": {"name": "~/.gitignore"}
+    },
+
+    {
         "caption": "Repository: Edit config",
         "command": "git_open_file",
         "args": {
@@ -22,6 +36,22 @@
             "name": "$GIT_COMMON_DIR/info/sparse-checkout",
             "syntax": "Git Ignore.sublime-syntax"
         }
+    },
+
+    {
+        "caption": "Repository: Edit .gitattributes",
+        "command": "git_open_file",
+        "args": {"name": "$GIT_SUPER_WORK_TREE/.gitattributes"}
+    },
+    {
+        "caption": "Repository: Edit .gitignore",
+        "command": "git_open_file",
+        "args": {"name": "$GIT_SUPER_WORK_TREE/.gitignore"}
+    },
+    {
+        "caption": "Repository: Edit .gitmodules",
+        "command": "git_open_file",
+        "args": {"name": "$GIT_SUPER_WORK_TREE/.gitmodules"}
     },
 
     {
