@@ -1,4 +1,5 @@
 import os
+import sys
 
 import sublime_plugin
 
@@ -6,16 +7,12 @@ __all__ = ["GitOpenFileCommand"]
 
 GIT_SEP = os.sep + ".git" + os.sep
 
-try:
-    import sys
 
-    if sys.version >= "3.8":
-        # python 3.8 doesn't need the realpath patch
-        raise AssertionError()
-
-    if sys.getwindowsversion().major < 6:
-        # Windows NT/2000/XP don't support the realpath patch
-        raise AssertionError()
+if (
+    sys.version < "3.8"
+    and sys.platform == "win32"
+    and sys.getwindowsversion().major >= 6
+):
 
     from nt import _getfinalpathname
 
@@ -53,7 +50,7 @@ try:
         return path
 
 
-except (AttributeError, ImportError, AssertionError):
+else:
 
     def realpath(path):
         """Resolve symlinks and return real path to file.
