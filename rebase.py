@@ -5,7 +5,8 @@ import sublime_plugin
 class GitRebaseOperationCommand(sublime_plugin.TextCommand):
     def run(self, edit, cmd):
         # validate command
-        if cmd not in ("drop", "edit", "exec", "fixup", "pick", "reword", "squash"):
+        if cmd not in ("break", "drop", "edit", "exec", "fixup", "label",
+                       "merge", "pick", "reset", "reword", "squash"):
             return sublime.error_message("Invalid command")
         # validate scope
         for sel in self.view.sel():

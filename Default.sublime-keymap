@@ -1,5 +1,12 @@
 [
     {
+        "keys": ["b"], "command": "git_rebase_operation", "args": { "cmd": "break" },
+        "context": [
+            { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ],
+    },
+    {
         "keys": ["d"], "command": "git_rebase_operation", "args": { "cmd": "drop" },
         "context": [
             { "key": "selector", "operator": "equal", "operand": "meta.commit.git.rebase", "match_all": true },
